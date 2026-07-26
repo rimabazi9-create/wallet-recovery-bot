@@ -1,37 +1,25 @@
 import os
-import logging
-from telegram import Update
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
+import telebot
 from dotenv import load_dotenv
 
 load_dotenv()
 
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
+if not TOKEN:
+    print("خطأ: يرجى التأكد من إضافة TELEGRAM_TOKEN في إعدادات البيئة على رندر.")
+    exit(1)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("أهلاً بك! بوت استعادة المحافظ والتحقق من المعاملات يعمل بنجاح وجاهز لخدمتكم.")
+bot = telebot.TeleBot(TOKEN)
 
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text
-    await update.message.reply_text(f"تم استلام طلبك أو رابط المعاملة بنجاح:\n{text}\n\nجاري فحص البيانات عبر السيرفر...")
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "أهلاً بك! بوت استعادة المحافظ والتحقق من المعاملات يعمل بنجاح وجاهز لخدمتكم.")
 
-def main():
-    if not TOKEN:
-        print("خطأ: يرجى التأكد من إضافة TELEGRAM_TOKEN في إعدادات البيئة على رندر.")
-        return
+@bot.message_handler(func=lambda message: True)
+def echo_all(message):
+    text = message.text
+    bot.reply_to(message, f"تم استلام طلبك أو رابط المعاملة بنجاح:\n{text}\n\nجاري فحص البيانات عبر السيرفر...")
 
-    application = ApplicationBuilder().token(TOKEN).build()
-
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
-
-    print("Telegram Bot is starting and listening for customers...")
-    application.run_polling()
-
-if __name__ == '__main__':
-    main()
+print("Telegram Bot is starting and listening for customers...")
+bot.infinity_polling()
