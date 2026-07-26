@@ -12,6 +12,12 @@ if not TOKEN:
 
 bot = telebot.TeleBot(TOKEN)
 
+# مسح أي تداخل سابق للاتصال لمنع خطأ 409
+try:
+    bot.remove_webhook()
+except Exception:
+    pass
+
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "أهلاً بك! بوت استعادة المحافظ والتحقق من المعاملات يعمل بنجاح وجاهز لخدمتكم.")
@@ -22,4 +28,4 @@ def echo_all(message):
     bot.reply_to(message, f"تم استلام طلبك أو رابط المعاملة بنجاح:\n{text}\n\nجاري فحص البيانات عبر السيرفر...")
 
 print("Telegram Bot is starting and listening for customers...")
-bot.infinity_polling()
+bot.infinity_polling(skip_pending=True)
