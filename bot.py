@@ -1,15 +1,11 @@
+import http.server
+import socketserver
 import os
-import time
-from dotenv import load_dotenv
 
-load_dotenv()
+PORT = int(os.environ.get("PORT", 10000))
+Handler = http.server.SimpleHTTPRequestHandler
 
-print("Starting Wallet Recovery Bot...")
-
-def main():
-    while True:
-        print("Bot is running and listening for transactions...")
-        time.sleep(60)
-
-if __name__ == "__main__":
-    main()
+print(f"Starting web server on port {PORT}...")
+with socketserver.TCPServer(("", PORT), Handler) as httpd:
+    print("Serving at port", PORT)
+    httpd.serve_forever()
