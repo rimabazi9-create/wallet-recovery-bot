@@ -1,7 +1,7 @@
 import os
 import logging
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, filters
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,27 +13,25 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-def start(update: Update, context: CallbackContext):
-    update.message.reply_text("أهلاً بك! بوت استعادة المحافظ والتحقق من المعاملات يعمل بنجاح وجاهز لخدمتكم.")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("أهلاً بك! بوت استعادة المحافظ والتحقق من المعاملات يعمل بنجاح وجاهز لخدمتكم.")
 
-def handle_message(update: Update, context: CallbackContext):
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
-    update.message.reply_text(f"تم استلام طلبك أو رابط المعاملة بنجاح:\n{text}\n\nجاري فحص البيانات عبر السيرفر...")
+    await update.message.reply_text(f"تم استلام طلبك أو رابط المعاملة بنجاح:\n{text}\n\nجاري فحص البيانات عبر السيرفر...")
 
 def main():
     if not TOKEN:
         print("خطأ: يرجى التأكد من إضافة TELEGRAM_TOKEN في إعدادات البيئة على رندر.")
         return
 
-    updater = Updater(TOKEN, use_context=True)
-    dispatcher = updater.dispatcher
+    application = ApplicationBuilder().token(TOKEN).build()
 
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command), handle_message))
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handle_message))
 
     print("Telegram Bot is starting and listening for customers...")
-    updater.start_polling()
-    updater.idle()
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
