@@ -6,8 +6,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.environ.get("TELEGRAM_TOKEN")
-# يمكنكِ وضع معرف تيليغرام الخاص بكِ هنا (Chat ID) ليصلكِ التنبيه مباشرة، أو سنقوم بتطويره لاحقاً
-ADMIN_CHAT_ID = os.environ.get("ADMIN_CHAT_ID", "")
 
 if not TOKEN:
     print("خطأ: يرجى التأكد من إضافة TELEGRAM_TOKEN في إعدادات البيئة على رندر.")
@@ -38,18 +36,16 @@ def send_welcome(message):
 @bot.message_handler(func=lambda message: True)
 def handle_request(message):
     user_name = message.from_user.first_name or "مستخدم"
-    user_username = f"@{message.from_user.username}" _not_ "بدون معرف" if message.from_user.username else "بدون معرف"
+    user_username = f"@{message.from_user.username}" if message.from_user.username else "بدون معرف"
     text = message.text
 
-    # رد احترافي للزبون ليطمئن أن طلبه وصل
     acknowledgement = (
         "✅ تم استلام طلبك بنجاح.\n"
         "جاري تحويل تفاصيل الطلب إلى فريق الإدارة والوسيط المالي للمراجعة الفورية."
     )
     bot.reply_to(message, acknowledgement)
 
-    # طباعة الطلب في سجلات السيرفر (Render Logs) لتتمكني من متابعتها
     print(f"[طلب جديد] من: {user_name} ({user_username}) | النص: {text}")
 
-print("Bot is running in smart redirection mode...")
+print("Bot is running perfectly...")
 bot.infinity_polling(skip_pending=True)
